@@ -1,0 +1,37 @@
+volumes:
+  test:
+
+services:
+
+  db: 
+    image: mysql/mysql-server
+    networks:
+      - test
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: test
+      MYSQL_USER: root
+      MYSQL_PASSWORD: root
+    volumes:
+      - test:/var/lib/mysql
+    ports:
+      - "3307:3306"
+
+  apptest:
+    build: .
+    networks:
+      - test
+    container_name: api_test
+    ports:
+      - "3000:3000"
+    env_file:
+      - ./.env
+    volumes:
+      - .:/app
+    command: sh -c 'npm install --prefix /app && npm start'
+    restart: on-failure
+    depends_on:
+      - db
+
+networks:
+  test:
